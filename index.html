@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Audio contextのサンプル</title>
+  </head>
+  <body>
+    <div>
+      コイン:
+      <button type="button" onclick="soundPlay('coin')">短形波</button>
+      <button type="button" onclick="soundPlay('coin','sine')">サイン波</button>
+      <button type="button" onclick="soundPlay('coin', 'triangle')">三角波</button>
+      <button type="button" onclick="soundPlay('coin', 'sawtooth')">のこぎり波</button>
+    </div>
+    <div>
+      ジャンプ:
+      <button type="button" onclick="soundPlay('jump')">短形波</button>
+      <button type="button" onclick="soundPlay('jump', 'sine')">サイン波</button>
+      <button type="button" onclick="soundPlay('jump', 'triangle')">三角波</button>
+      <button type="button" onclick="soundPlay('jump', 'sawtooth')">のこぎり波</button>
+    </div>
+    <script>
+      function soundPlay(soundType, oscillatorType) {
+        //オーディオコンテキストの作成
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioContext = new AudioContext();
+
+        // 音量調整オーディオノードの作成
+        const gainNode = audioContext.createGain();
+        // 出力先に接続
+        gainNode.connect(audioContext.destination);
+        // 音量設定
+        gainNode.gain.value = 0.1;
+
+        // オシレーター（直訳: 振動。音源ってことかな？）を作成
+        const oscillator = audioContext.createOscillator();
+        oscillator.connect(gainNode);
+        // 再生する波形の種類を指定する
+        // sine(サイン波)
+        // square(短形波)
+        oscillator.type = oscillatorType || "square";
+
+        if (soundType == 'coin') {
+          // シの音
+          oscillator.frequency.setValueAtTime(1975.533, audioContext.currentTime);
+          // ミの音
+          // 第一引数は、周波数（Hz）, 第二引数は、値の変化が起こるまでの時間 (秒)
+          oscillator.frequency.setValueAtTime(2637.02, audioContext.currentTime + 0.08);
+          // 再生
+          oscillator.start();
+          oscillator.stop(0.5);
+          return
+        }
+
+        if (soundType == 'jump') {
+          let hzs = [220.0,233.081,246.941,261.625,277.182,293.664,311.126,329.627,349.228,369.994,391.995,440]
+          let i = 1
+          let buff = 0.15
+          oscillator.frequency.setValueAtTime(195.997,audioContext.currentTime)
+          oscillator.frequency.setValueAtTime(207.652,audioContext.currentTime+buff)
+          for(const hz of hzs){
+              let time = i*0.012 + buff
+              oscillator.frequency.setValueAtTime(hz, audioContext.currentTime + time)
+              i++
+          }
+          oscillator.start()
+          oscillator.stop(0.3)
+          return
+        }
+      }
+    </script>
+  </body>
+</html>
